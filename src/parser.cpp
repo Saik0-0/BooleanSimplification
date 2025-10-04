@@ -3,6 +3,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <algorithm>
 
 GateType str_to_gate(const std::string& str)
 {
@@ -40,5 +41,31 @@ bool line_parser(const std::string& line, Circuit& circuit)
             cout << "I red gate name: " << gate_name << endl;
         }
     }
+    return true;
+}
+
+bool bench_file_parser(const std::string& filename, Circuit& circuit)
+{
+    using namespace std;
+    fstream file(filename);
+    if (!file.is_open())
+    {
+        cout << "I can't open file T-T" << endl;
+        return false;
+    }
+
+    string line;
+    int line_iterator = 0;
+    while (getline(file, line))
+    {
+        bool result_of_line_parsing = line_parser(line, circuit);
+        if (!result_of_line_parsing)
+        {
+            cout << "Error in line " << line_iterator << endl;
+        }
+        line_iterator++;
+    }
+
+    file.close();
     return true;
 }
