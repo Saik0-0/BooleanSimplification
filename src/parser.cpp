@@ -23,6 +23,35 @@ GateType str_to_gate(const std::string& str)
     return g_type;
 }
 
+bool str_to_gate_inputs(const std::string& str, std::vector<std:: string>& inputs)
+{
+    if (str.empty())
+    {
+        return false;
+    }
+
+    std::string input_name = "";
+    for (char c : str)
+    {
+        // std::cout << "Now i reading char " << c << std::endl;
+        if (c != ',')
+        {
+            input_name.push_back(c);
+        }
+        else
+        {
+            inputs.push_back(input_name);
+            input_name = "";
+        }
+    }
+    if (input_name != "")
+    {
+        inputs.push_back(input_name);
+    }
+
+    return true;
+}
+
 bool line_parser(const std::string& line, Circuit& circuit)
 {
     using namespace std;
@@ -33,14 +62,59 @@ bool line_parser(const std::string& line, Circuit& circuit)
 
     if (line.find("INPUT") == 0)
     {
-        size_t start_of_gate_name = line.find("(") + 1;
-        size_t end_of_gate_name = line.find(")");
-        if (start_of_gate_name != string::npos && end_of_gate_name != string::npos)
+        size_t start_of_input_name = line.find("(");
+        size_t end_of_input_name = line.find(")");
+        if ((start_of_input_name + 1) != string::npos && end_of_input_name != string::npos)
         {
-            string gate_name = line.substr(start_of_gate_name, end_of_gate_name - start_of_gate_name);
-            cout << "I red gate name: " << gate_name << endl;
+            string input_name = line.substr(start_of_input_name + 1, end_of_input_name - (start_of_input_name + 1));
+            cout << "I read input name: " << input_name << endl;
+        }
+        return true;
+    }
+    if (line.find("OUTPUT") == 0)
+    {
+        size_t start_of_output_name = line.find("(");
+        size_t end_of_output_name = line.find(")");
+        if ((start_of_output_name + 1) != string::npos && end_of_output_name != string::npos)
+        {
+            string output_name = line.substr(start_of_output_name + 1, end_of_output_name - (start_of_output_name + 1));
+            cout << "I read output name: " << output_name << endl;
+        }
+        return true;
+    }
+
+    size_t equation_position = line.find("=");
+    if (equation_position != string::npos)
+    {
+        string gate_name = line.substr(0, equation_position - 1);
+
+        size_t start_of_gate_inputs = line.find("(");
+        size_t end_of_gate_inputs = line.find(")");
+        if (start_of_gate_inputs != string::npos && end_of_gate_inputs != string::npos)
+        {
+            string gate_type = line.substr(equation_position + 1, start_of_gate_inputs - (equation_position + 1));
+            cout << "I read gate name: " << gate_name << ", and gate type: " << gate_type << ". ";
+            string str_of_gate_inputs = line.substr(start_of_gate_inputs + 1, end_of_gate_inputs - (start_of_gate_inputs + 1));
+            
+            vector<string> input_gates;
+            bool str_to_gate_inputs_checker = str_to_gate_inputs(str_of_gate_inputs, input_gates);
+
+            Gate gate;
+            gate.name = gate_name;
+            gate.g_type = str_to_gate(gate_type);
+            gate.inputs = input_gates;
+
+            cout << "Its inputs are: ";
+            for (int i = 0; i < input_gates.size(); ++i)
+            {
+                cout << input_gates[i] << " ";
+            }
+
+            cout << endl;
+            
         }
     }
+
     return true;
 }
 

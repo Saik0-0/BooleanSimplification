@@ -17,7 +17,6 @@ struct Gate
     std::string name;
     GateType g_type;
     std::vector<std::string> inputs;
-    std::string output;
 };
 
 struct Circuit
@@ -30,3 +29,4 @@ struct Circuit
 bool bench_file_parser(const std::string& filename, Circuit& circuit);
 bool line_parser(const std::string& line, Circuit& circuit);
 GateType str_to_gate(const std::string& str);
+bool str_to_gate_inputs(const std::string& str, std::vector<std:: string>& inputs);
