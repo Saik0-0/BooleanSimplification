@@ -21,3 +21,24 @@ GateType str_to_gate(const std::string& str)
         g_type = G_XOR;
     return g_type;
 }
+
+bool line_parser(const std::string& line, Circuit& circuit)
+{
+    using namespace std;
+    if (line.empty())
+    {
+        return true;
+    }
+
+    if (line.find("INPUT") == 0)
+    {
+        size_t start_of_gate_name = line.find("(") + 1;
+        size_t end_of_gate_name = line.find(")");
+        if (start_of_gate_name != string::npos && end_of_gate_name != string::npos)
+        {
+            string gate_name = line.substr(start_of_gate_name, end_of_gate_name - start_of_gate_name);
+            cout << "I red gate name: " << gate_name << endl;
+        }
+    }
+    return true;
+}
