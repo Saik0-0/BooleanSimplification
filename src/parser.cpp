@@ -68,9 +68,12 @@ bool line_parser(const std::string& line, Circuit& circuit)
         {
             string input_name = line.substr(start_of_input_name + 1, end_of_input_name - (start_of_input_name + 1));
             cout << "I read input name: " << input_name << endl;
+
+            circuit.inputs.push_back(input_name);
         }
         return true;
     }
+
     if (line.find("OUTPUT") == 0)
     {
         size_t start_of_output_name = line.find("(");
@@ -79,6 +82,8 @@ bool line_parser(const std::string& line, Circuit& circuit)
         {
             string output_name = line.substr(start_of_output_name + 1, end_of_output_name - (start_of_output_name + 1));
             cout << "I read output name: " << output_name << endl;
+
+            circuit.outputs.push_back(output_name);
         }
         return true;
     }
@@ -103,6 +108,8 @@ bool line_parser(const std::string& line, Circuit& circuit)
             gate.name = gate_name;
             gate.g_type = str_to_gate(gate_type);
             gate.inputs = input_gates;
+
+            circuit.gates.push_back(gate_name);
 
             cout << "Its inputs are: ";
             for (int i = 0; i < input_gates.size(); ++i)
