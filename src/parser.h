@@ -1,15 +1,16 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <cstdint>
 
-enum GateType
+enum class GateType: uint8_t
 {
-    G_INPUT,
-    G_OUTPUT,
-    G_AND,
-    G_OR,
-    G_NOT,
-    G_XOR
+    INPUT,
+    OUTPUT,
+    AND,
+    OR,
+    NOT,
+    XOR
 };
 
 struct Gate

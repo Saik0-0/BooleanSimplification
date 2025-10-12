@@ -7,19 +7,18 @@
 
 GateType str_to_gate(const std::string& str)
 {
-    GateType g_type = G_INPUT;
     if (str == "INPUT") 
-        return G_INPUT;
+        return GateType::INPUT;
     if (str == "OUTPUT") 
-        return G_OUTPUT;
+        return GateType::OUTPUT;
     if (str == "AND") 
-        return G_AND;
+        return GateType::AND;
     if (str == "OR") 
-        return G_OR;
+        return GateType::OR;
     if (str == "NOT") 
-        return G_NOT;
+        return GateType::NOT;
     if (str == "XOR") 
-        return G_XOR;
+        return GateType::XOR;
     std::cerr << "Ошибка: неизвестный тип гейта: " << str << std::endl;
 }
 
