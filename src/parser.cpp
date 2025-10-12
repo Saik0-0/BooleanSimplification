@@ -3,11 +3,12 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <string_view>
 #include <algorithm>
 
-GateType str_to_gate(const std::string& str)
+GateType str_to_gate(const std::string_view str)
 {
-    if (str == "INPUT") 
+    if (str == "INPUT")
         return GateType::INPUT;
     if (str == "OUTPUT") 
         return GateType::OUTPUT;
@@ -22,7 +23,7 @@ GateType str_to_gate(const std::string& str)
     std::cerr << "Ошибка: неизвестный тип гейта: " << str << std::endl;
 }
 
-bool str_to_gate_inputs(const std::string& str, std::vector<std:: string>& inputs)
+bool str_to_gate_operands(const std::string_view str, std::vector<std:: string_view>* inputs)
 {
     if (str.empty())
     {
@@ -32,28 +33,26 @@ bool str_to_gate_inputs(const std::string& str, std::vector<std:: string>& input
     std::string input_name = "";
     for (char c : str)
     {
-        // std::cout << "Now i reading char " << c << std::endl;
         if (c != ',')
         {
             input_name.push_back(c);
         }
         else
         {
-            inputs.push_back(input_name);
+            inputs->push_back(input_name);
             input_name = "";
         }
     }
     if (input_name != "")
     {
-        inputs.push_back(input_name);
+        inputs->push_back(input_name);
     }
 
     return true;
 }
 
-bool line_parser(const std::string& line, Circuit& circuit)
+bool line_parser(const std::string_view line, Circuit* circuit)
 {
-    using namespace std;
     if (line.empty())
     {
         return true;
@@ -63,12 +62,16 @@ bool line_parser(const std::string& line, Circuit& circuit)
     {
         size_t start_of_input_name = line.find("(");
         size_t end_of_input_name = line.find(")");
-        if ((start_of_input_name + 1) != string::npos && end_of_input_name != string::npos)
+        if ((start_of_input_name + 1) != std::string::npos && end_of_input_name != std::string::npos)
         {
-            string input_name = line.substr(start_of_input_name + 1, end_of_input_name - (start_of_input_name + 1));
-            cout << "I read input name: " << input_name << endl;
+            std::string_view input_name = line.substr(start_of_input_name + 1, end_of_input_name - (start_of_input_name + 1));
+            std::cout << "I read input name: " << input_name << std::endl;
 
-            circuit.inputs.push_back(input_name);
+            circuit->inputs.push_back(input_name);
+        }
+        else
+        {
+            std::cerr << "Error in Input" << std::endl;
         }
         return true;
     }
@@ -77,75 +80,93 @@ bool line_parser(const std::string& line, Circuit& circuit)
     {
         size_t start_of_output_name = line.find("(");
         size_t end_of_output_name = line.find(")");
-        if ((start_of_output_name + 1) != string::npos && end_of_output_name != string::npos)
+        if ((start_of_output_name + 1) != std::string::npos && end_of_output_name != std::string::npos)
         {
-            string output_name = line.substr(start_of_output_name + 1, end_of_output_name - (start_of_output_name + 1));
-            cout << "I read output name: " << output_name << endl;
+            std::string_view output_name = line.substr(start_of_output_name + 1, end_of_output_name - (start_of_output_name + 1));
+            std::cout << "I read output name: " << output_name << std::endl;
 
-            circuit.outputs.push_back(output_name);
+            circuit->outputs.push_back(output_name);
+        }
+        else
+        {
+            std::cerr << "Error in Output" << std::endl;
         }
         return true;
     }
 
     size_t equation_position = line.find("=");
-    if (equation_position != string::npos)
+    if (equation_position != std::string::npos)
     {
-        string gate_name = line.substr(0, equation_position - 1);
+        std::string_view gate_name = line.substr(0, equation_position - 1);
 
-        size_t start_of_gate_inputs = line.find("(");
-        size_t end_of_gate_inputs = line.find(")");
-        if (start_of_gate_inputs != string::npos && end_of_gate_inputs != string::npos)
+        size_t start_of_gate_operands = line.find("(");
+        size_t end_of_gate_operands = line.find(")");
+        if (start_of_gate_operands != std::string::npos && end_of_gate_operands != std::string::npos)
         {
-            string gate_type = line.substr(equation_position + 1, start_of_gate_inputs - (equation_position + 1));
-            cout << "I read gate name: " << gate_name << ", and gate type: " << gate_type << ". ";
-            string str_of_gate_inputs = line.substr(start_of_gate_inputs + 1, end_of_gate_inputs - (start_of_gate_inputs + 1));
+            std::string_view gate_type = line.substr(equation_position + 1, start_of_gate_operands - (equation_position + 1));
+            std::cout << "I read gate name: " << gate_name << ", and gate type: " << gate_type << ". ";
+            std::string_view str_of_gate_operands = line.substr(start_of_gate_operands + 1, end_of_gate_operands - (start_of_gate_operands + 1));
             
-            vector<string> input_gates;
-            bool str_to_gate_inputs_checker = str_to_gate_inputs(str_of_gate_inputs, input_gates);
+            std::vector<std::string_view> operands_gates;
+            bool str_to_gate_operands_checker = str_to_gate_operands(str_of_gate_operands, &operands_gates);
+            if (!str_to_gate_operands_checker)
+            {
+                std::cerr << "Can't read operands" << std::endl;
+            }
 
             Gate gate;
             gate.name = gate_name;
             gate.g_type = str_to_gate(gate_type);
-            gate.inputs = input_gates;
+            gate.inputs = operands_gates;
 
-            circuit.gates.push_back(gate_name);
+            circuit->gates.push_back(gate_name);
 
-            cout << "Its inputs are: ";
-            for (int i = 0; i < input_gates.size(); ++i)
+            std::cout << "Its operands are: ";
+            for (int i = 0; i < operands_gates.size(); ++i)
             {
-                cout << input_gates[i] << " ";
+                std::cout << operands_gates[i] << " ";
             }
 
-            cout << endl;
-            
+            std::cout << std::endl;
+
+            return true;
+        }
+        else
+        {
+            std::cerr << "Error in operands" << std::endl;
         }
     }
-
-    return true;
-}
-
-bool bench_file_parser(const std::string& filename, Circuit& circuit)
-{
-    using namespace std;
-    fstream file(filename);
-    if (!file.is_open())
+    else
     {
-        cout << "I can't open file T-T" << endl;
-        return false;
+        std::cerr << "Error in gate description" << std::endl;
     }
 
-    string line;
+    return false;
+}
+
+Circuit parse_bench_file(const std::string_view filename)
+{
+    Circuit circuit;
+    std::fstream file(std::string{filename});
+    if (!file.is_open())
+    {
+        std::cerr << "I can't open file T-T" <<std:: endl;
+        return circuit;
+    }
+
+    std::string line;
     int line_iterator = 0;
     while (getline(file, line))
     {
-        bool result_of_line_parsing = line_parser(line, circuit);
+        bool result_of_line_parsing = line_parser(line, &circuit);
         if (!result_of_line_parsing)
         {
-            cout << "Error in line " << line_iterator << endl;
+            std::cerr << "Error in line " << line_iterator << std::endl;
+            return circuit;
         }
-        line_iterator++;
+        ++line_iterator;
     }
 
     file.close();
-    return true;
+    return circuit;
 }
