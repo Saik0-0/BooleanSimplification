@@ -9,18 +9,18 @@ GateType str_to_gate(const std::string& str)
 {
     GateType g_type = G_INPUT;
     if (str == "INPUT") 
-        g_type = G_INPUT;
+        return G_INPUT;
     if (str == "OUTPUT") 
-        g_type = G_OUTPUT;
+        return G_OUTPUT;
     if (str == "AND") 
-        g_type = G_AND;
+        return G_AND;
     if (str == "OR") 
-        g_type = G_OR;
+        return G_OR;
     if (str == "NOT") 
-        g_type = G_NOT;
+        return G_NOT;
     if (str == "XOR") 
-        g_type = G_XOR;
-    return g_type;
+        return G_XOR;
+    std::cerr << "Ошибка: неизвестный тип гейта: " << str << std::endl;
 }
 
 bool str_to_gate_inputs(const std::string& str, std::vector<std:: string>& inputs)
