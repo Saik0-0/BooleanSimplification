@@ -38,7 +38,7 @@ void remove_spaces(const std::string_view str, std::string* str_without_spaces)
     }
 }
 
-bool str_to_gate_operands(const std::string_view str, std::vector<std:: string_view>* inputs)
+bool str_to_gate_operands(const std::string_view str, std::vector<size_t>* inputs, Circuit* circuit)
 {
     if (str.empty())
     {
@@ -57,7 +57,8 @@ bool str_to_gate_operands(const std::string_view str, std::vector<std:: string_v
         else
         {
             operand_name = str.substr(substr_index_start, substr_index_start + substr_index_end);
-            inputs->push_back(operand_name);
+            size_t operand_id = circuit->gate_name_table.get_id(std::string(operand_name));
+            inputs->push_back(operand_id);
             operand_name = "";
             substr_index_start = ++substr_index_end;
         }
@@ -65,7 +66,8 @@ bool str_to_gate_operands(const std::string_view str, std::vector<std:: string_v
     operand_name = str.substr(substr_index_start, substr_index_start + substr_index_end);
     if (operand_name != "")
     {
-        inputs->push_back(operand_name);
+        size_t operand_id = circuit->gate_name_table.get_id(std::string(operand_name));
+        inputs->push_back(operand_id);
     }
 
     return true;
@@ -89,9 +91,10 @@ bool line_parser(std::string_view line, Circuit* circuit)
         if ((start_of_input_name + 1) != std::string::npos && end_of_input_name != std::string::npos)
         {
             std::string_view input_name = line.substr(start_of_input_name + 1, end_of_input_name - (start_of_input_name + 1));
-            std::cout << "I read input name: " << input_name << std::endl;
 
-            circuit->inputs.push_back(input_name);
+            size_t input_id = circuit->gate_name_table.get_id(std::string(input_name));
+            std::cout << "I read input name and make id: " << input_name << ", " << input_id << std::endl;
+            circuit->inputs.push_back(input_id);
         }
         else
         {
@@ -107,9 +110,10 @@ bool line_parser(std::string_view line, Circuit* circuit)
         if ((start_of_output_name + 1) != std::string::npos && end_of_output_name != std::string::npos)
         {
             std::string_view output_name = line.substr(start_of_output_name + 1, end_of_output_name - (start_of_output_name + 1));
-            std::cout << "I read output name: " << output_name << std::endl;
-
-            circuit->outputs.push_back(output_name);
+            
+            size_t output_id = circuit->gate_name_table.get_id(std::string(output_name));
+            std::cout << "I read output name and make id: " << output_name << ", " << output_id << std::endl;
+            circuit->outputs.push_back(output_id);
         }
         else
         {
@@ -128,19 +132,22 @@ bool line_parser(std::string_view line, Circuit* circuit)
         if (start_of_gate_operands != std::string::npos && end_of_gate_operands != std::string::npos)
         {
             std::string_view gate_type = line.substr(equation_position + 1, start_of_gate_operands - (equation_position + 1));
-            std::cout << "I read gate name: " << gate_name << ", and gate type: " << gate_type << ". ";
+            // std::cout << "I read gate name: " << gate_name << ", and gate type: " << gate_type << ". ";
             std::string_view str_of_gate_operands = line.substr(start_of_gate_operands + 1, end_of_gate_operands - (start_of_gate_operands + 1));
             
-            std::vector<std::string_view> operands_gates;
-            bool str_to_gate_operands_checker = str_to_gate_operands(str_of_gate_operands, &operands_gates);
+            std::vector<std::size_t> operands_gates;
+            bool str_to_gate_operands_checker = str_to_gate_operands(str_of_gate_operands, &operands_gates, circuit);
             if (!str_to_gate_operands_checker)
             {
                 std::cerr << "Can't read operands" << std::endl;
             }
 
-            Gate gate(gate_name, str_to_gate(gate_type), operands_gates);
+            size_t gate_id = circuit->gate_name_table.get_id(std::string(gate_name));
+            Gate gate(gate_id, str_to_gate(gate_type), operands_gates);
 
-            circuit->gates.push_back(gate_name);
+            circuit->gates.push_back(gate);
+
+            std::cout << "I read gate name: " << gate_name << "(id " << gate_id << "), and gate type: " << gate_type << ". ";
 
             std::cout << "Its operands are: ";
             for (int i = 0; i < operands_gates.size(); ++i)
