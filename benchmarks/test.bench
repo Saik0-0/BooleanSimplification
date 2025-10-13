@@ -1,0 +1,8 @@
+INPUT(a1)
+INPUT(b2)
+INPUT(c1)
+OUTPUT(result)
+
+g1 = AND(a1, b2)
+g2 = OR(g1, c1)
+result = XOR(g2)
