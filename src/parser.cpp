@@ -6,6 +6,7 @@
 #include <string_view>
 #include <algorithm>
 
+
 GateType str_to_gate(const std::string_view str)
 {
     if (str == "INPUT")
@@ -20,7 +21,21 @@ GateType str_to_gate(const std::string_view str)
         return GateType::NOT;
     if (str == "XOR") 
         return GateType::XOR;
-    std::cerr << "Ошибка: неизвестный тип гейта: " << str << std::endl;
+    throw std::invalid_argument("Unknown gate type: " + std::string(str));
+}
+
+void remove_spaces(const std::string_view str, std::string* str_without_spaces)
+{
+    str_without_spaces->clear();
+    str_without_spaces->reserve(str.size());
+
+    for (char c : str)
+    {
+        if (!std::isspace(static_cast<unsigned char>(c)))
+        {
+            *str_without_spaces += c;
+        }
+    }
 }
 
 bool str_to_gate_operands(const std::string_view str, std::vector<std:: string_view>* inputs)
@@ -30,33 +45,42 @@ bool str_to_gate_operands(const std::string_view str, std::vector<std:: string_v
         return false;
     }
 
-    std::string input_name = "";
+    std::string_view operand_name = "";
+    int substr_index_start = 0;
+    int substr_index_end = 0;
     for (char c : str)
     {
         if (c != ',')
         {
-            input_name.push_back(c);
+            ++substr_index_end;
         }
         else
         {
-            inputs->push_back(input_name);
-            input_name = "";
+            operand_name = str.substr(substr_index_start, substr_index_start + substr_index_end);
+            inputs->push_back(operand_name);
+            operand_name = "";
+            substr_index_start = ++substr_index_end;
         }
     }
-    if (input_name != "")
+    operand_name = str.substr(substr_index_start, substr_index_start + substr_index_end);
+    if (operand_name != "")
     {
-        inputs->push_back(input_name);
+        inputs->push_back(operand_name);
     }
 
     return true;
 }
 
-bool line_parser(const std::string_view line, Circuit* circuit)
+bool line_parser(std::string_view line, Circuit* circuit)
 {
     if (line.empty())
     {
         return true;
     }
+
+    std::string line_without_spaces = "";
+    remove_spaces(line, &line_without_spaces);
+    line = line_without_spaces;
 
     if (line.find("INPUT") == 0)
     {
@@ -97,7 +121,7 @@ bool line_parser(const std::string_view line, Circuit* circuit)
     size_t equation_position = line.find("=");
     if (equation_position != std::string::npos)
     {
-        std::string_view gate_name = line.substr(0, equation_position - 1);
+        std::string_view gate_name = line.substr(0, equation_position);
 
         size_t start_of_gate_operands = line.find("(");
         size_t end_of_gate_operands = line.find(")");
@@ -114,10 +138,7 @@ bool line_parser(const std::string_view line, Circuit* circuit)
                 std::cerr << "Can't read operands" << std::endl;
             }
 
-            Gate gate;
-            gate.name = gate_name;
-            gate.g_type = str_to_gate(gate_type);
-            gate.inputs = operands_gates;
+            Gate gate(gate_name, str_to_gate(gate_type), operands_gates);
 
             circuit->gates.push_back(gate_name);
 

@@ -4,7 +4,7 @@
 int main()
 {
     Circuit circuit;
-    bool parsing_checker = parse_bench_file("benchmarks/logVn_2.bench", &circuit);
+    circuit = parse_bench_file("benchmarks/logVn_2.bench");
 
     return 0;
 }
