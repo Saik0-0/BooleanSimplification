@@ -46,7 +46,6 @@ void replace_gate(Circuit* circuit, const Gate* gate_to_replace)
         }
     }
 
-    remove_gate(circuit, old_gate_id);
 }
 
 void simplify_duplicate_operands(Circuit* circuit)
@@ -56,7 +55,9 @@ void simplify_duplicate_operands(Circuit* circuit)
     {
         if ((gate.type == GateType::AND || gate.type == GateType::OR) && equal_operands_checker(&gate))
         {
+
             gates_to_replace.push_back(&gate);
+            std::cout << "I need to replace gate: " << gate.id << std::endl;
         }
     }
 
