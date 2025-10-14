@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <iostream>
 #include <string_view>
 #include <vector>
 #include <cstdint>
@@ -14,6 +15,18 @@ enum class GateType: uint8_t
     NOT,
     XOR
 };
+
+inline std::ostream& operator<<(std::ostream& os, GateType type) {
+    switch (type) {
+        case GateType::AND: return os << "AND";
+        case GateType::OR: return os << "OR";
+        case GateType::NOT: return os << "NOT";
+        case GateType::INPUT: return os << "INPUT";
+        case GateType::OUTPUT: return os << "OUTPUT";
+        case GateType::XOR: return os << "XOR";
+        default: return os << "UNKNOWN";
+    }
+}
 
 struct GateNameTable {
 
@@ -74,4 +87,8 @@ bool line_parser(std::string_view line, Circuit* circuit);
 GateType str_to_gate(const std::string_view str);
 bool str_to_gate_operands(const std::string_view str, std::vector<size_t>* inputs, Circuit* circuit);
 
-// bool equal_operands_checker(const Gate* gate);
+void replace_gate(Circuit* circuit, const Gate* gate_with_dublicate_operаnd);
+bool equal_operands_checker(const Gate* gate);
+void simplify_duplicate_operands(Circuit* circuit);
+
+void read_circuit(Circuit* circuit);
