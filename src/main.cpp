@@ -4,7 +4,19 @@
 int main()
 {
     Circuit circuit;
-    circuit = parse_bench_file("benchmarks/logVn_2.bench");
+    circuit = parse_bench_file("benchmarks/test.bench");
+
+    read_circuit(&circuit);
+    simplify_duplicate_operands(&circuit);
+    read_circuit(&circuit);
+
+    
+
+    // Gate gate("A", GateType::AND, {"y"});
+
+    // bool a = equal_operands_checker(&gate);
+
+    // std::cout << "Equal operands? (0 - no, 1 - yes): " << a << std::endl;
 
     return 0;
 }

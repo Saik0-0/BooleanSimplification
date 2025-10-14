@@ -90,5 +90,6 @@ bool str_to_gate_operands(const std::string_view str, std::vector<size_t>* input
 void replace_gate(Circuit* circuit, const Gate* gate_with_dublicate_operаnd);
 bool equal_operands_checker(const Gate* gate);
 void simplify_duplicate_operands(Circuit* circuit);
+void remove_gate(Circuit* circuit, size_t gate_id_to_remove);
 
 void read_circuit(Circuit* circuit);
