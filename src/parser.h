@@ -13,7 +13,10 @@ enum class GateType: uint8_t
     AND,
     OR,
     NOT,
-    XOR
+    XOR,
+    NAND,
+    NOR,
+    NXOR
 };
 
 inline std::ostream& operator<<(std::ostream& os, GateType type) {
@@ -24,19 +27,21 @@ inline std::ostream& operator<<(std::ostream& os, GateType type) {
         case GateType::INPUT: return os << "INPUT";
         case GateType::OUTPUT: return os << "OUTPUT";
         case GateType::XOR: return os << "XOR";
+        case GateType::NAND: return os << "NAND";
+        case GateType::NOR: return os << "NOR";
+        case GateType::NXOR: return os << "NXOR";
         default: return os << "UNKNOWN";
     }
 }
 
-struct GateNameTable {
+class GateNameTable {
 
 private:
-    // Будет ли тут корректно хранить std::string_view?
     std::unordered_map<std::string, std::size_t> str_to_id;
     std::vector<std::string> id_to_str;
 
 public:
-    size_t get_id(std::string name)
+    size_t get_id(const std::string& name)
     {
         auto pos = str_to_id.find(name);
         if (pos != str_to_id.end())
@@ -59,11 +64,6 @@ public:
 
 struct Gate
 {
-
-// Точно ли надо делать private? 
-// Будем же упрощать схему, понадобится менять гейты в схеме (или будем просто добавлять/удалять?)
-
-// Пока убрала private
     size_t id;
     GateType type;
     std::vector<size_t> operands;
@@ -87,9 +87,10 @@ bool line_parser(std::string_view line, Circuit* circuit);
 GateType str_to_gate(const std::string_view str);
 bool str_to_gate_operands(const std::string_view str, std::vector<size_t>* inputs, Circuit* circuit);
 
-void replace_gate(Circuit* circuit, const Gate* gate_with_dublicate_operаnd);
-bool equal_operands_checker(const Gate* gate);
+void replace_gate(Circuit* circuit, const Gate& gate_with_dublicate_operаnd);
+bool check_has_equal_operands(const Gate& gate);
 void simplify_duplicate_operands(Circuit* circuit);
 void remove_gate(Circuit* circuit, size_t gate_id_to_remove);
+void remove_pendant_vertices(Circuit* circuit, const std::vector<const Gate*> gates_to_replace);
 
-void read_circuit(Circuit* circuit);
+void write_circuit(Circuit& circuit);

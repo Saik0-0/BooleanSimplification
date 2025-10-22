@@ -6,9 +6,9 @@ int main()
     Circuit circuit;
     circuit = parse_bench_file("benchmarks/test.bench");
 
-    read_circuit(&circuit);
+    write_circuit(circuit);
     simplify_duplicate_operands(&circuit);
-    read_circuit(&circuit);
+    write_circuit(circuit);
 
     
 

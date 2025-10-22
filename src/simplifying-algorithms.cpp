@@ -5,16 +5,16 @@
 #include <algorithm>
 #include <vector>
 
-bool equal_operands_checker(const Gate* gate)
+bool check_has_equal_operands(const Gate& gate)
 {
-    if (gate->operands.size() <= 1) 
+    if (gate.operands.size() <= 1) 
     {
         return false;
     }
 
-    for (size_t i = 0; i < gate->operands.size() - 1; ++i)
+    for (size_t i = 0; i < gate.operands.size() - 1; ++i)
     {
-        if (gate->operands[i] != gate->operands[i+1])
+        if (gate.operands[i] != gate.operands[i+1])
         {
             return false;
         }
@@ -23,10 +23,10 @@ bool equal_operands_checker(const Gate* gate)
     return true;
 }
 
-void replace_gate(Circuit* circuit, const Gate* gate_to_replace)
+void replace_gate(Circuit* circuit, const Gate& gate_to_replace)
 {
-    size_t replasing_operand_id = gate_to_replace->operands[0];
-    size_t old_gate_id = gate_to_replace->id;
+    size_t replasing_operand_id = gate_to_replace.operands[0];
+    size_t old_gate_id = gate_to_replace.id;
     for (Gate& gate : circuit->gates)
     {
         for (size_t& operand_id : gate.operands)
@@ -57,16 +57,18 @@ void simplify_duplicate_operands(Circuit* circuit)
         {
 
             gates_to_replace.push_back(&gate);
-            std::cout << "I need to replace gate: " << gate.id << std::endl;
+            std::cerr << "I need to replace gate: " << gate.id << std::endl;
         }
     }
 
     for (const Gate* gate : gates_to_replace)
     {
-        std::cout << "Simplifying gate " << gate->id 
+        std::cerr << "Simplifying gate " << gate->id 
                   << " (" << gate->type << ") with duplicate operands" << std::endl;
         replace_gate(circuit, gate);
     }
+
+    remove_pendant_vertices(circuit, gates_to_replace);
 }
 
 void remove_gate(Circuit* circuit, size_t gate_id_to_remove)
@@ -78,4 +80,12 @@ void remove_gate(Circuit* circuit, size_t gate_id_to_remove)
                 );
 
     circuit->gates.erase(pos, circuit->gates.end());
+}
+
+void remove_pendant_vertices(Circuit* circuit, const std::vector<const Gate*> gates_to_replace)
+{
+    for (const Gate* gate : gates_to_replace)
+    {
+        remove_gate(circuit, gate->id);
+    }
 }
