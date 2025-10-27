@@ -41,8 +41,9 @@ public:
     void print() const;
 };
 
-struct Gate
+class Gate
 {
+public:
     size_t id;
     GateType type;
     std::vector<size_t> operands;
@@ -55,8 +56,9 @@ struct Gate
 };
 
 
-struct Circuit
+class Circuit
 {
+public:
     GateNameTable gate_name_table;
     std::vector<Gate> gates;
     std::vector<size_t> inputs;
