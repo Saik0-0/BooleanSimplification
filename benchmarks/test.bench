@@ -5,11 +5,12 @@ OUTPUT(result)
 
 g1 = AND(a1, b2)
 g2 = OR(g1, c1)
-g3 = AND(a1, a1) 6
+g3 = AND(a1, a1)
 g4 = OR(g1, g3)
-g5 = OR(b2, b2) 8
+g5 = OR(b2, b2)
 g6 = NOT(g5)
-g7 = AND(a1, a1) 10
+g7 = AND(a1, a1)
 g8 = NOT(g7)
+g9 = AND(g7, g4)
 
 result = XOR(g2)
