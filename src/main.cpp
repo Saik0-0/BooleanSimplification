@@ -1,6 +1,7 @@
 #include <iostream>
 #include "parser.h"
 #include "circuit-writer.h"
+#include "simplifying-algorithms.h"
 
 int main()
 {
@@ -9,7 +10,7 @@ int main()
 
     write_circuit(circuit);
     circuit.gate_name_table.print();
-    circuit.simplify_duplicate_operands();
+    simplify_duplicate_operands(&circuit);
     // write_circuit(circuit);
     // circuit.gate_name_table.print();
     // std::vector<size_t> pv = circuit.find_pedant_vertices();
@@ -21,7 +22,7 @@ int main()
 
     // std::cerr << std::endl;
 
-    circuit.remove_pedant_vertices();
+    remove_pendant_vertices(&circuit);
     write_circuit(circuit);
     circuit.gate_name_table.print();
 

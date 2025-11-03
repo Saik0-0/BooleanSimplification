@@ -4,7 +4,7 @@
 #include <string_view>
 #include <vector>
 
-void write_gate(Gate& gate)
+void write_gate(const Gate& gate)
 {
     std::cerr << "Gate id: " << gate.id << ", gate type: " << gate.type << ", operands: ";
     for (size_t operand : gate.operands)
@@ -14,7 +14,7 @@ void write_gate(Gate& gate)
     std::cerr << std::endl;
 }
 
-void write_circuit(Circuit& circuit)
+void write_circuit(const Circuit& circuit)
 {
     std::cerr << "----------Circuit----------" << "\n";
 
@@ -23,7 +23,7 @@ void write_circuit(Circuit& circuit)
         std::cerr << "Input: " << input_id << "\n";
     }
 
-    for (Gate& gate : circuit.gates)
+    for (const Gate& gate : circuit.gates)
     {
         write_gate(gate);
     }
@@ -33,6 +33,6 @@ void write_circuit(Circuit& circuit)
         std::cerr << "Output: " << output_id << "\n";
     }
 
-    std::cerr << std::endl;
+    std::cerr << std::flush;
 
 }

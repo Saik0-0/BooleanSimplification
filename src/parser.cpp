@@ -21,6 +21,12 @@ GateType str_to_gate(const std::string_view str)
         return GateType::NOT;
     if (str == "XOR") 
         return GateType::XOR;
+    if (str == "NAND")
+        return GateType::NAND;
+    if (str == "NOR")
+        return GateType::NOR;
+    if (str == "NXOR")
+        return GateType::NXOR;
     throw std::invalid_argument("Unknown gate type: " + std::string(str));
 }
 
@@ -57,7 +63,15 @@ bool str_to_gate_operands(const std::string_view str, std::vector<size_t>* input
         else
         {
             operand_name = str.substr(substr_index_start, substr_index_start + substr_index_end);
-            size_t operand_id = circuit->gate_name_table.get_id(std::string(operand_name));
+            size_t operand_id = 0;
+            auto operand_id_t = circuit->gate_name_table.get_id(std::string(operand_name));
+            if (!operand_id_t.has_value())
+            {
+                operand_id = circuit->gate_name_table.create_id(std::string(operand_name));
+            } else
+            {
+                operand_id = operand_id_t.value();
+            }
             inputs->push_back(operand_id);
             operand_name = "";
             substr_index_start = ++substr_index_end;
@@ -66,7 +80,15 @@ bool str_to_gate_operands(const std::string_view str, std::vector<size_t>* input
     operand_name = str.substr(substr_index_start, substr_index_start + substr_index_end);
     if (operand_name != "")
     {
-        size_t operand_id = circuit->gate_name_table.get_id(std::string(operand_name));
+        size_t operand_id = 0;
+        auto operand_id_t = circuit->gate_name_table.get_id(std::string(operand_name));
+        if (!operand_id_t.has_value())
+        {
+            operand_id = circuit->gate_name_table.create_id(std::string(operand_name));
+        } else
+        {
+            operand_id = operand_id_t.value();
+        }
         inputs->push_back(operand_id);
     }
 
@@ -92,7 +114,7 @@ bool line_parser(std::string_view line, Circuit* circuit)
         {
             std::string_view input_name = line.substr(start_of_input_name + 1, end_of_input_name - (start_of_input_name + 1));
 
-            size_t input_id = circuit->gate_name_table.get_id(std::string(input_name));
+            size_t input_id = circuit->gate_name_table.create_id(std::string(input_name));
             std::cout << "I read input name and make id: " << input_name << ", " << input_id << std::endl;
             circuit->inputs.push_back(input_id);
         }
@@ -111,7 +133,7 @@ bool line_parser(std::string_view line, Circuit* circuit)
         {
             std::string_view output_name = line.substr(start_of_output_name + 1, end_of_output_name - (start_of_output_name + 1));
             
-            size_t output_id = circuit->gate_name_table.get_id(std::string(output_name));
+            size_t output_id = circuit->gate_name_table.create_id(std::string(output_name));
             std::cout << "I read output name and make id: " << output_name << ", " << output_id << std::endl;
             circuit->outputs.push_back(output_id);
         }
@@ -142,7 +164,15 @@ bool line_parser(std::string_view line, Circuit* circuit)
                 std::cerr << "Can't read operands" << std::endl;
             }
 
-            size_t gate_id = circuit->gate_name_table.get_id(std::string(gate_name));
+            size_t gate_id = 0;
+            auto gate_id_t = circuit->gate_name_table.get_id(std::string(gate_name));
+            if (!gate_id_t.has_value())
+            {
+                gate_id = circuit->gate_name_table.create_id(std::string(gate_name));
+            } else
+            {
+                gate_id = gate_id_t.value();
+            }
             Gate gate(gate_id, str_to_gate(gate_type), operands_gates);
 
             circuit->gates.push_back(gate);

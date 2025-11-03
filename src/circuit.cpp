@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <vector>
 #include <unordered_set>
+#include <optional>
 
 std::ostream& operator<<(std::ostream& os, GateType type) {
     switch (type) 
@@ -22,7 +23,7 @@ std::ostream& operator<<(std::ostream& os, GateType type) {
     }
 }
 
-size_t GateNameTable::get_id(const std::string& name)
+std::optional<size_t> GateNameTable::get_id(const std::string& name) const
 {
     auto pos = str_to_id.find(name);
     if (pos != str_to_id.end())
@@ -30,15 +31,20 @@ size_t GateNameTable::get_id(const std::string& name)
         return pos -> second;
     }
 
+    return std::nullopt;
+}
+
+std::string_view GateNameTable::get_name(size_t id) const
+{
+    return id_to_str.at(id);
+}
+
+size_t GateNameTable::create_id(const std::string& name)
+{
     size_t new_id = str_to_id.size();
     str_to_id[name] = new_id;
     id_to_str.push_back(name);
     return new_id;
-}
-
-std::string GateNameTable::get_name(size_t id)
-{
-    return id_to_str.at(id);
 }
 
 void GateNameTable::update_after_removal(const std::unordered_map<size_t, size_t>& id_map, 
