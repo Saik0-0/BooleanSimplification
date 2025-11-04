@@ -2,40 +2,19 @@
 #include "parser.h"
 #include "circuit-writer.h"
 #include "simplifying-algorithms.h"
+#include "metrics-calculation.h"
 
 int main()
 {
     Circuit circuit;
+    Circuit circuit_optimized;
     circuit = parse_bench_file("benchmarks/test.bench");
+    circuit_optimized = parse_bench_file("benchmarks/test.bench");
+    
+    simplify_duplicate_operands(&circuit_optimized);
+    remove_pendant_vertices(&circuit_optimized);
 
-    write_circuit(circuit);
-    circuit.gate_name_table.print();
-    simplify_duplicate_operands(&circuit);
-    // write_circuit(circuit);
-    // circuit.gate_name_table.print();
-    // std::vector<size_t> pv = circuit.find_pedant_vertices();
-
-    // for (size_t v : pv)
-    // {
-    //     std::cerr << "Pedant vertice: " << v << "\n";
-    // }
-
-    // std::cerr << std::endl;
-
-
-
-    // CircuitGraph circuit_graph(circuit);
-    // std::unordered_set<size_t> significant_gates = find_significant_gates_dfs(circuit_graph, circuit.inputs, circuit.outputs);
-
-    // for (size_t gate : significant_gates)
-    // {
-    //     std::cerr << gate << " - ";
-    // }
-    // std::cerr << std::endl;
-
-    remove_pendant_vertices(&circuit);
-    write_circuit(circuit);
-    circuit.gate_name_table.print();
+    std::cerr << "Circuit improvement = " << gate_count_impovement(circuit, circuit_optimized) << "%" << std::endl;
 
     return 0;
 }

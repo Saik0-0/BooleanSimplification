@@ -70,7 +70,6 @@ public:
     std::vector<Gate> gates;
     std::vector<size_t> inputs;
     std::vector<size_t> outputs;
-
 };
 
 class CircuitGraph
