@@ -22,6 +22,17 @@ int main()
 
     // std::cerr << std::endl;
 
+
+
+    // CircuitGraph circuit_graph(circuit);
+    // std::unordered_set<size_t> significant_gates = find_significant_gates_dfs(circuit_graph, circuit.inputs, circuit.outputs);
+
+    // for (size_t gate : significant_gates)
+    // {
+    //     std::cerr << gate << " - ";
+    // }
+    // std::cerr << std::endl;
+
     remove_pendant_vertices(&circuit);
     write_circuit(circuit);
     circuit.gate_name_table.print();

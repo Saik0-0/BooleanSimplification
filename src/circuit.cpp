@@ -99,3 +99,48 @@ void GateNameTable::print() const
     std::cerr << "=================" << std::endl;
 }
 
+void CircuitGraph::add_node(size_t node)
+{
+    all_nodes.insert(node);
+    if (!parent_children_dependences.contains(node)) parent_children_dependences[node] = {};
+    if (!child_parents_dependences.contains(node)) child_parents_dependences[node] = {};
+    if (!in_dependenses_amount.contains(node)) in_dependenses_amount[node] = 0;
+}
+
+CircuitGraph::CircuitGraph(const Circuit& circuit)
+{
+    parent_children_dependences.clear();
+    child_parents_dependences.clear();
+    in_dependenses_amount.clear();
+    all_nodes.clear();
+
+    for (size_t input_id : circuit.inputs)
+    {
+        add_node(input_id);
+        in_dependenses_amount[input_id] = 0;
+    }
+
+    for (const Gate& gate : circuit.gates)
+    {
+        add_node(gate.id);
+        for (size_t operand_id : gate.operands)
+        {
+            add_node(operand_id);
+            parent_children_dependences[operand_id].push_back(gate.id);
+            child_parents_dependences[gate.id].push_back(operand_id);
+            in_dependenses_amount[gate.id]++;
+        }
+    }
+}
+
+bool CircuitGraph::get_children(size_t gate_id, std::vector<size_t>* children) const
+{
+    children->clear();
+    auto pos = parent_children_dependences.find(gate_id);
+    if (pos != parent_children_dependences.end())
+    {
+        *children = pos->second;
+        return true;
+    }
+    return false;
+}

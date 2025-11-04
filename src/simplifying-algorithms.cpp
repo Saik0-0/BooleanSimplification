@@ -68,21 +68,18 @@ void simplify_duplicate_operands(Circuit* circuit)
         replace_gate(circuit, *gate);
     }
 
-    std::vector<size_t> gate_ids_to_remove;
+    std::unordered_set<size_t> gate_ids_to_remove;
     for (const Gate* gate : gates_to_replace)
     {
-        gate_ids_to_remove.push_back(gate->id);
+        gate_ids_to_remove.insert(gate->id);
     }
 
     remove_gates(circuit, gate_ids_to_remove);
 }
 
 
-void remove_gates(Circuit* circuit, const std::vector<size_t> gate_ids_to_remove)
-{
-    std::unordered_set<size_t> gates_to_remove(gate_ids_to_remove.begin(), 
-                                               gate_ids_to_remove.end());
-    
+void remove_gates(Circuit* circuit, const std::unordered_set<size_t> gate_ids_to_remove)
+{   
     size_t max_id = 0;
     
     for (size_t input_id : circuit->inputs) 
@@ -104,7 +101,7 @@ void remove_gates(Circuit* circuit, const std::vector<size_t> gate_ids_to_remove
     
     for (const Gate& gate : circuit->gates) 
     {
-        if (!gates_to_remove.contains(gate.id)) 
+        if (!gate_ids_to_remove.contains(gate.id)) 
         {
             size_t new_id = next_new_id++;
             id_map[gate.id] = new_id;
@@ -153,30 +150,72 @@ bool check_output_gate(const std::vector<size_t>& outputs, size_t id)
     return false;
 }
 
-std::vector<size_t> find_pendant_vertices(const Circuit& circuit)
+std::unordered_set<size_t> find_pendant_vertices(const Circuit& circuit)
 {
-    std::vector<size_t> pendant_vertices_ids;
-    std::unordered_set<size_t> all_operands;
+    std::unordered_set<size_t> pendant_vertices_ids;
+    std::unordered_set<size_t> significant_gates = find_significant_gates_dfs(CircuitGraph(circuit), circuit.inputs, circuit.outputs);
+    
     for (const Gate& gate : circuit.gates)
     {
-        for (size_t operand : gate.operands)
+        if (!significant_gates.contains(gate.id))
         {
-            all_operands.insert(operand);
+            pendant_vertices_ids.insert(gate.id);
         }
     }
 
-    for (const Gate& gate : circuit.gates)
-    {
-        if (!all_operands.count(gate.id) && !check_output_gate(circuit.outputs, gate.id))
-        {
-            pendant_vertices_ids.push_back(gate.id);
-        }
-    }
     return pendant_vertices_ids;
 }
 
 void remove_pendant_vertices(Circuit* circuit)
 {
-    std::vector<size_t> pedant_vertices_ids = find_pendant_vertices(*circuit);
+    std::unordered_set<size_t> pedant_vertices_ids = find_pendant_vertices(*circuit);
     remove_gates(circuit, pedant_vertices_ids);
+}
+
+bool dfs_find_path(const CircuitGraph& graph, size_t gate_id, 
+                    const std::unordered_set<size_t>& outputs,
+                    std::unordered_set<size_t>& visited,
+                    std::unordered_set<size_t>& result)
+{
+    if (visited.contains(gate_id)) return result.contains(gate_id);
+
+    bool lead_to_output = false;
+    visited.insert(gate_id);
+
+    if (outputs.contains(gate_id)) lead_to_output = true;
+
+    std::vector<size_t> gate_children;
+    if (graph.get_children(gate_id, &gate_children))
+    {
+        for (size_t child : gate_children)
+        {
+            if (dfs_find_path(graph, child, outputs, visited, result))
+            {
+                lead_to_output = true;
+            }
+        }
+    }
+
+    if (lead_to_output) result.insert(gate_id);
+
+    return lead_to_output;
+}
+
+std::unordered_set<size_t> find_significant_gates_dfs(const CircuitGraph& graph, 
+                                                    const std::vector<size_t>& inputs, 
+                                                    const std::vector<size_t>& outputs)
+{
+    std::unordered_set<size_t> result;
+    std::unordered_set<size_t> visited;
+    std::unordered_set<size_t> outputs_set(outputs.begin(), outputs.end());
+
+    for (size_t input_id: inputs)
+    {
+        if (graph.all_nodes.contains(input_id))
+        {
+            dfs_find_path(graph, input_id, outputs_set, visited, result);
+        }
+    }
+
+    return result;
 }

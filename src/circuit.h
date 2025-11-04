@@ -72,3 +72,17 @@ public:
     std::vector<size_t> outputs;
 
 };
+
+class CircuitGraph
+{
+public:
+    std::unordered_map<size_t, std::vector<size_t>> parent_children_dependences;
+    std::unordered_map<size_t, std::vector<size_t>> child_parents_dependences;
+    std::unordered_map<size_t, size_t> in_dependenses_amount;
+    std::unordered_set<size_t> all_nodes;
+
+    CircuitGraph(const Circuit& circuit);
+
+    bool get_children(size_t gate_id, std::vector<size_t>* children) const;
+    void add_node(size_t node);
+};
