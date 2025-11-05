@@ -10,7 +10,7 @@ int main()
     Circuit circuit_optimized;
     circuit = parse_bench_file("benchmarks/test.bench");
     circuit_optimized = parse_bench_file("benchmarks/test.bench");
-    
+
     simplify_duplicate_operands(&circuit_optimized);
     remove_pendant_vertices(&circuit_optimized);
 

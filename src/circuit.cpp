@@ -47,6 +47,11 @@ size_t GateNameTable::create_id(const std::string& name)
     return new_id;
 }
 
+size_t GateNameTable::get_max_id() const
+{
+    return id_to_str.size();
+}
+
 void GateNameTable::update_after_removal(const std::unordered_map<size_t, size_t>& id_map, 
                             const std::vector<size_t>& input_ids,
                             const std::vector<size_t>& output_ids) 

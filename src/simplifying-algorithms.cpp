@@ -80,24 +80,9 @@ void simplify_duplicate_operands(Circuit* circuit)
 
 void remove_gates(Circuit* circuit, const std::unordered_set<size_t> gate_ids_to_remove)
 {   
-    size_t max_id = 0;
-    
-    for (size_t input_id : circuit->inputs) 
-    {
-        if (input_id > max_id) max_id = input_id;
-    }
-    for (size_t output_id : circuit->outputs) 
-    {
-        if (output_id > max_id) max_id = output_id;
-    }
-    for (const Gate& gate : circuit->gates) 
-    {
-        if (gate.id > max_id) max_id = gate.id;
-    }
-
     std::unordered_map<size_t, size_t> id_map;
     std::vector<Gate> new_gates;
-    size_t next_new_id = max_id + 1;
+    size_t next_new_id = circuit->gate_name_table.get_max_id(); + 1;
     
     for (const Gate& gate : circuit->gates) 
     {

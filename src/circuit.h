@@ -37,6 +37,7 @@ public:
 
     size_t create_id(const std::string& name);
 
+    size_t get_max_id() const;
     void update_after_removal(const std::unordered_map<size_t, size_t>& id_map, 
                              const std::vector<size_t>& input_ids,
                              const std::vector<size_t>& output_ids);
@@ -70,6 +71,7 @@ public:
     std::vector<Gate> gates;
     std::vector<size_t> inputs;
     std::vector<size_t> outputs;
+
 };
 
 class CircuitGraph
