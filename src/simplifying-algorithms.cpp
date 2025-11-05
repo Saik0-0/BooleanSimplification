@@ -25,7 +25,7 @@ bool Gate::check_has_equal_operands() const
     return true;
 }
 
-void replace_gate(Circuit* circuit, const Gate& gate_to_replace)
+void replace_gate_with_operand(Circuit* circuit, const Gate& gate_to_replace)
 {
     size_t replasing_operand_id = gate_to_replace.operands[0];
     size_t old_gate_id = gate_to_replace.id;
@@ -65,7 +65,7 @@ void simplify_duplicate_operands(Circuit* circuit)
     {
         std::cerr << "Simplifying gate " << gate->id 
                   << " (" << gate->type << ") with duplicate operands" << std::endl;
-        replace_gate(circuit, *gate);
+        replace_gate_with_operand(circuit, *gate);
     }
 
     std::unordered_set<size_t> gate_ids_to_remove;
@@ -78,15 +78,15 @@ void simplify_duplicate_operands(Circuit* circuit)
 }
 
 
-void remove_gates(Circuit* circuit, const std::unordered_set<size_t> gate_ids_to_remove)
+void remove_gates(Circuit* circuit, const std::unordered_set<size_t>& gate_ids_to_remove)
 {   
     std::unordered_map<size_t, size_t> id_map;
     std::vector<Gate> new_gates;
-    size_t next_new_id = circuit->gate_name_table.get_max_id(); + 1;
+    size_t next_new_id = circuit->gate_name_table.get_max_id();
     
     for (const Gate& gate : circuit->gates) 
     {
-        if (!gate_ids_to_remove.contains(gate.id)) 
+        if (!gate_ids_to_remove.contains(gate.id))
         {
             size_t new_id = next_new_id++;
             id_map[gate.id] = new_id;
